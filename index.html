@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>맥 ZIP 윈도우 변환기</title>
+<style>
+  :root{
+    --bg:#f4f4f1; --card:#ffffff; --soft:#f7f7f4; --line:#e3e3dd; --line2:#eeeee9;
+    --txt:#1c1c1a; --muted:#76766e; --accent:#2f5fa6; --accent-soft:#eef3fb;
+    --good:#2f7d4f; --err:#b3392f;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0; color:var(--txt); background:var(--bg); min-height:100vh; padding:52px 20px 72px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    -webkit-font-smoothing:antialiased; line-height:1.6;
+  }
+  .wrap{max-width:640px; margin:0 auto}
+  code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.85em; color:#444; background:#efefe9; padding:1px 5px; border-radius:4px}
+
+  header{margin-bottom:22px}
+  h1{font-size:23px; font-weight:700; margin:0 0 8px; letter-spacing:-.015em}
+  .lead{color:#4a4a44; font-size:14.5px; margin:0}
+  .lead b{color:var(--txt); font-weight:700}
+
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px; padding:26px;
+    box-shadow:0 1px 2px rgba(0,0,0,.04); margin-bottom:20px;
+  }
+
+  #drop{
+    border:1.5px dashed #cbcbc3; border-radius:10px; padding:46px 20px; text-align:center;
+    cursor:pointer; background:var(--soft); transition:border-color .12s, background .12s;
+  }
+  #drop:hover{border-color:#a6a69c}
+  #drop.hover{border-color:var(--accent); background:var(--accent-soft)}
+  #drop .big{font-size:15px; font-weight:600; margin-bottom:4px}
+  #drop .small{color:var(--muted); font-size:13px}
+
+  .opt{display:flex; flex-direction:column; gap:11px; margin:20px 2px 0; font-size:13.5px; color:#3f3f39}
+  .opt label{display:flex; align-items:center; gap:9px; cursor:pointer}
+  input[type=checkbox]{accent-color:var(--accent); width:16px; height:16px}
+
+  .hidden{display:none}
+
+  .bar{height:5px; background:#ededea; border-radius:3px; overflow:hidden; margin-top:22px}
+  .bar > i{display:block; height:100%; width:0; background:var(--accent); transition:width .2s}
+
+  #status{margin-top:20px; font-size:14px}
+  #status b{font-weight:700; color:var(--good)}
+
+  .summary{display:flex; gap:14px; margin-top:22px}
+  .stat{flex:1; background:var(--soft); border:1px solid var(--line2); border-radius:10px; padding:14px 16px}
+  .stat .n{font-size:22px; font-weight:700; line-height:1}
+  .stat .l{font-size:12px; color:var(--muted); margin-top:6px}
+
+  .list{margin-top:18px}
+  .list .head{font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; margin-bottom:8px}
+  .row{display:flex; justify-content:space-between; align-items:baseline; gap:14px; padding:8px 0; border-bottom:1px solid var(--line2); font-size:13px}
+  .row:last-child{border-bottom:none}
+  .row .new{word-break:break-all}
+  .row .tag{color:var(--accent); font-size:11px; font-weight:600; flex:0 0 auto}
+
+  .actions{margin-top:24px; display:flex; align-items:center; gap:16px; flex-wrap:wrap}
+  .btn{
+    display:inline-block; background:var(--accent); color:#fff; border:none;
+    padding:12px 22px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; text-decoration:none;
+  }
+  .btn:hover{background:#26508d}
+  .link{background:none; border:none; color:var(--muted); font-size:13px; cursor:pointer; padding:0; text-decoration:underline; text-underline-offset:3px}
+  .link:hover{color:var(--txt)}
+
+  /* privacy callout */
+  .callout{
+    display:flex; gap:10px; align-items:flex-start; margin-bottom:20px;
+    background:#f0f6ef; border:1px solid #d7e7d4; border-radius:10px; padding:13px 15px; font-size:13.5px; color:#2f5a3e;
+  }
+  .callout .mk{flex:0 0 auto; width:7px; height:7px; border-radius:50%; background:var(--good); margin-top:7px}
+  .callout b{font-weight:700}
+
+  /* feature / use-case section */
+  .sec-title{font-size:13px; font-weight:700; color:#3f3f39; margin:0 0 14px; display:flex; align-items:center; gap:8px}
+  .sec-title::before{content:""; width:3px; height:14px; background:var(--accent); border-radius:2px}
+  .feat{display:flex; flex-direction:column; gap:16px}
+  .feat-item{display:flex; gap:12px}
+  .feat-item .num{
+    flex:0 0 auto; width:24px; height:24px; border-radius:6px; background:var(--accent-soft); color:var(--accent);
+    font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;
+  }
+  .feat-item .t{font-size:14px; font-weight:600; margin-bottom:2px}
+  .feat-item .d{font-size:13px; color:var(--muted)}
+
+  .note{font-size:12.5px; color:var(--muted); line-height:1.85; margin:0}
+  .note + .note{margin-top:9px}
+  .note b{color:#3f3f39; font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>맥 ZIP 윈도우 변환기</h1>
+    <p class="lead">맥에서 압축한 ZIP이 <b>윈도우에서 열리지 않거나 오류가 날 때</b>, 그 원인이 되는 맥 전용 잡파일을 정리하고 표준 ZIP으로 다시 포장해 정상적으로 풀리게 만듭니다. 한글 파일명 깨짐도 함께 바로잡습니다.</p>
+  </header>
+
+  <div class="callout">
+    <span class="mk"></span>
+    <span><b>모든 처리는 이 페이지 안(브라우저)에서만</b> 이루어집니다. 파일은 어떤 서버로도 전송되지 않으며, 인터넷 연결도 필요 없습니다.</span>
+  </div>
+
+  <div class="card">
+    <div id="drop">
+      <div class="big">ZIP 파일을 여기에 끌어다 놓으세요</div>
+      <div class="small">또는 클릭해서 선택 · 여러 개도 가능</div>
+      <input id="file" type="file" accept=".zip,application/zip" multiple class="hidden">
+    </div>
+
+    <div class="opt">
+      <label><input type="checkbox" id="optStrip" checked> 맥 잡파일 제거 <code>__MACOSX</code> <code>.DS_Store</code> <code>._*</code></label>
+      <label><input type="checkbox" id="optUtf8" checked> 한글 파일명 정상화 (자모 결합 · 인코딩 복구)</label>
+    </div>
+
+    <div class="bar hidden" id="barWrap"><i id="bar"></i></div>
+    <div id="status"></div>
+    <div class="summary hidden" id="summary"></div>
+    <div class="list hidden" id="list"></div>
+    <div class="actions" id="actions"></div>
+  </div>
+
+  <div class="card">
+    <p class="sec-title">이런 문제를 해결합니다</p>
+    <div class="feat">
+      <div class="feat-item">
+        <span class="num">1</span>
+        <div>
+          <div class="t">압축이 아예 안 풀릴 때</div>
+          <div class="d">맥 ZIP에는 <code>__MACOSX</code>, <code>.DS_Store</code> 같은 맥 전용 잡파일과 비표준 구조가 섞여 있어, 윈도우 기본 압축 해제기에서 오류가 나거나 풀리지 않는 경우가 많습니다. 이런 요소를 모두 정리하고 깨끗한 표준 ZIP으로 다시 포장해, 윈도우에서 더블클릭만으로 정상적으로 풀립니다.</div>
+        </div>
+      </div>
+      <div class="feat-item">
+        <span class="num">2</span>
+        <div>
+          <div class="t">한글 파일명이 깨질 때</div>
+          <div class="d">맥 ZIP은 파일명 인코딩 정보를 빠뜨리는 경우가 많아, 윈도우에서 <code>�쒓� 깨吏</code>처럼 보입니다. UTF-8·CP949를 판별해 원래 이름으로 되돌립니다.</div>
+        </div>
+      </div>
+      <div class="feat-item">
+        <span class="num">3</span>
+        <div>
+          <div class="t">한글이 자모로 분리될 때</div>
+          <div class="d">맥은 <code>포</code>를 <code>ㅍ ㅗ ㅈ</code>처럼 쪼개 저장합니다(NFD). 윈도우용 결합형(NFC)으로 합쳐 정상 표기로 복원합니다.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <p class="sec-title">참고 사항</p>
+    <p class="note"><b>작동 방식</b> — 브라우저에 내장된 압축 기능만 사용하므로 서버나 외부 라이브러리가 없습니다. 파일명을 복구하고 표준 ZIP으로 다시 압축할 뿐, 파일 내용은 그대로 보존됩니다.</p>
+    <p class="note"><b>지원 브라우저</b> — Chrome, Edge, Firefox, Safari 16.4 이상.</p>
+    <p class="note"><b>제한</b> — 암호로 보호된 ZIP이나 2GB가 넘는 초대형 파일은 지원하지 않을 수 있습니다.</p>
+  </div>
+</div>
+
+<script>
+"use strict";
+
+/* ---------- CRC32 ---------- */
+const CRC_TABLE = (() => {
+  const t = new Uint32Array(256);
+  for (let n = 0; n < 256; n++) {
+    let c = n;
+    for (let k = 0; k < 8; k++) c = (c & 1) ? (0xEDB88320 ^ (c >>> 1)) : (c >>> 1);
+    t[n] = c >>> 0;
+  }
+  return t;
+})();
+function crc32(buf) {
+  let c = 0xFFFFFFFF;
+  for (let i = 0; i < buf.length; i++) c = CRC_TABLE[(c ^ buf[i]) & 0xFF] ^ (c >>> 8);
+  return (c ^ 0xFFFFFFFF) >>> 0;
+}
+
+/* ---------- deflate via native streams ---------- */
+async function inflateRaw(bytes) {
+  const ds = new DecompressionStream("deflate-raw");
+  const stream = new Blob([bytes]).stream().pipeThrough(ds);
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+async function deflateRaw(bytes) {
+  const cs = new CompressionStream("deflate-raw");
+  const stream = new Blob([bytes]).stream().pipeThrough(cs);
+  return new Uint8Array(await new Response(stream).arrayBuffer());
+}
+
+/* ---------- filename decoding ---------- */
+const decUtf8Strict = new TextDecoder("utf-8", { fatal: true });
+const decUtf8 = new TextDecoder("utf-8");
+let decKr;
+try { decKr = new TextDecoder("euc-kr"); } catch (e) { decKr = null; }
+
+function decodeName(bytes, utf8Flag) {
+  if (utf8Flag) return { name: decUtf8.decode(bytes), enc: "UTF-8" };
+  let ascii = true;
+  for (let i = 0; i < bytes.length; i++) if (bytes[i] > 0x7f) { ascii = false; break; }
+  if (ascii) return { name: decUtf8.decode(bytes), enc: "ASCII" };
+  try { return { name: decUtf8Strict.decode(bytes), enc: "UTF-8" }; }
+  catch (e) {
+    if (decKr) return { name: decKr.decode(bytes), enc: "CP949" };
+    return { name: decUtf8.decode(bytes), enc: "UTF-8?" };
+  }
+}
+
+/* ---------- ZIP reader (central directory based) ---------- */
+function readU16(dv, o) { return dv.getUint16(o, true); }
+function readU32(dv, o) { return dv.getUint32(o, true); }
+
+function findEOCD(dv, len) {
+  const min = Math.max(0, len - 22 - 65535);
+  for (let i = len - 22; i >= min; i--) {
+    if (readU32(dv, i) === 0x06054b50) return i;
+  }
+  return -1;
+}
+
+function parseZip64Extra(dv, start, extraLen, need) {
+  let p = start;
+  const end = start + extraLen;
+  while (p + 4 <= end) {
+    const tag = readU16(dv, p), sz = readU16(dv, p + 2);
+    if (tag === 0x0001) {
+      let q = p + 4;
+      if (need.uncompSize) { need.uncompSizeVal = Number(dv.getBigUint64(q, true)); q += 8; }
+      if (need.compSize) { need.compSizeVal = Number(dv.getBigUint64(q, true)); q += 8; }
+      if (need.offset) { need.offsetVal = Number(dv.getBigUint64(q, true)); q += 8; }
+    }
+    p += 4 + sz;
+  }
+}
+
+function parseZip(buf) {
+  const dv = new DataView(buf);
+  const bytes = new Uint8Array(buf);
+  const len = buf.byteLength;
+  const eocd = findEOCD(dv, len);
+  if (eocd < 0) throw new Error("ZIP 형식이 아니거나 손상된 파일입니다. (EOCD 없음)");
+
+  let cdOffset = readU32(dv, eocd + 16);
+  let cdCount = readU16(dv, eocd + 10);
+
+  if (cdOffset === 0xFFFFFFFF || cdCount === 0xFFFF) {
+    const locOff = eocd - 20;
+    if (locOff >= 0 && readU32(dv, locOff) === 0x07064b50) {
+      const z64 = Number(dv.getBigUint64(locOff + 8, true));
+      if (readU32(dv, z64) === 0x06064b50) {
+        cdCount = Number(dv.getBigUint64(z64 + 32, true));
+        cdOffset = Number(dv.getBigUint64(z64 + 48, true));
+      }
+    }
+  }
+
+  const entries = [];
+  let p = cdOffset;
+  for (let i = 0; i < cdCount; i++) {
+    if (readU32(dv, p) !== 0x02014b50) break;
+    const flags = readU16(dv, p + 8);
+    const method = readU16(dv, p + 10);
+    const mtime = readU16(dv, p + 12);
+    const mdate = readU16(dv, p + 14);
+    let compSize = readU32(dv, p + 20);
+    let uncompSize = readU32(dv, p + 24);
+    const nameLen = readU16(dv, p + 28);
+    const extraLen = readU16(dv, p + 30);
+    const commentLen = readU16(dv, p + 32);
+    let localOffset = readU32(dv, p + 42);
+    const nameBytes = bytes.subarray(p + 46, p + 46 + nameLen);
+
+    if (compSize === 0xFFFFFFFF || uncompSize === 0xFFFFFFFF || localOffset === 0xFFFFFFFF) {
+      const need = {
+        uncompSize: uncompSize === 0xFFFFFFFF,
+        compSize: compSize === 0xFFFFFFFF,
+        offset: localOffset === 0xFFFFFFFF
+      };
+      parseZip64Extra(dv, p + 46 + nameLen, extraLen, need);
+      if (need.uncompSize) uncompSize = need.uncompSizeVal;
+      if (need.compSize) compSize = need.compSizeVal;
+      if (need.offset) localOffset = need.offsetVal;
+    }
+
+    entries.push({ flags, method, mtime, mdate, compSize, uncompSize, localOffset, nameBytes });
+    p += 46 + nameLen + extraLen + commentLen;
+  }
+
+  for (const e of entries) {
+    const lo = e.localOffset;
+    if (readU32(dv, lo) !== 0x04034b50) throw new Error("로컬 헤더를 찾을 수 없습니다. (오프셋 불일치)");
+    const lNameLen = readU16(dv, lo + 26);
+    const lExtraLen = readU16(dv, lo + 28);
+    e.dataStart = lo + 30 + lNameLen + lExtraLen;
+    e.encrypted = (e.flags & 0x1) !== 0;
+  }
+  return entries;
+}
+
+/* ---------- ZIP writer ---------- */
+const enc = new TextEncoder();
+function dosDateTime() {
+  const d = new Date();
+  const time = (d.getHours() << 11) | (d.getMinutes() << 5) | (d.getSeconds() >> 1);
+  const date = ((d.getFullYear() - 1980) << 9) | ((d.getMonth() + 1) << 5) | d.getDate();
+  return { time: time & 0xFFFF, date: date & 0xFFFF };
+}
+
+function buildZip(files) {
+  const chunks = [];
+  const central = [];
+  let offset = 0;
+  const { time, date } = dosDateTime();
+
+  for (const f of files) {
+    const nameBytes = enc.encode(f.name);
+    const isDir = f.name.endsWith("/");
+    const method = isDir ? 0 : f.method;
+    const compData = isDir ? new Uint8Array(0) : (method === 8 ? f.comp : f.data);
+    const compSize = compData.length;
+    const uncompSize = isDir ? 0 : f.data.length;
+    const crc = isDir ? 0 : f.crc;
+    const mt = f.mtime || time, md = f.mdate || date;
+
+    const lh = new Uint8Array(30 + nameBytes.length);
+    const ldv = new DataView(lh.buffer);
+    ldv.setUint32(0, 0x04034b50, true);
+    ldv.setUint16(4, 20, true);
+    ldv.setUint16(6, 0x0800, true);
+    ldv.setUint16(8, method, true);
+    ldv.setUint16(10, mt, true);
+    ldv.setUint16(12, md, true);
+    ldv.setUint32(14, crc, true);
+    ldv.setUint32(18, compSize, true);
+    ldv.setUint32(22, uncompSize, true);
+    ldv.setUint16(26, nameBytes.length, true);
+    ldv.setUint16(28, 0, true);
+    lh.set(nameBytes, 30);
+    chunks.push(lh, compData);
+
+    const ch = new Uint8Array(46 + nameBytes.length);
+    const cdv = new DataView(ch.buffer);
+    cdv.setUint32(0, 0x02014b50, true);
+    cdv.setUint16(4, 20, true);
+    cdv.setUint16(6, 20, true);
+    cdv.setUint16(8, 0x0800, true);
+    cdv.setUint16(10, method, true);
+    cdv.setUint16(12, mt, true);
+    cdv.setUint16(14, md, true);
+    cdv.setUint32(16, crc, true);
+    cdv.setUint32(20, compSize, true);
+    cdv.setUint32(24, uncompSize, true);
+    cdv.setUint16(28, nameBytes.length, true);
+    cdv.setUint32(38, isDir ? 0x10 : 0, true);
+    cdv.setUint32(42, offset, true);
+    ch.set(nameBytes, 46);
+    central.push(ch);
+
+    offset += lh.length + compData.length;
+  }
+
+  const cdStart = offset;
+  let cdSize = 0;
+  for (const c of central) { chunks.push(c); cdSize += c.length; }
+
+  const eocd = new Uint8Array(22);
+  const edv = new DataView(eocd.buffer);
+  edv.setUint32(0, 0x06054b50, true);
+  edv.setUint16(8, files.length, true);
+  edv.setUint16(10, files.length, true);
+  edv.setUint32(12, cdSize, true);
+  edv.setUint32(16, cdStart, true);
+  chunks.push(eocd);
+
+  let total = 0; for (const c of chunks) total += c.length;
+  const out = new Uint8Array(total);
+  let o = 0; for (const c of chunks) { out.set(c, o); o += c.length; }
+  return out;
+}
+
+/* ---------- macOS junk filter ---------- */
+function isMacJunk(name) {
+  if (name.startsWith("__MACOSX/") || name === "__MACOSX") return true;
+  const base = name.split("/").pop();
+  if (base === ".DS_Store") return true;
+  if (base.startsWith("._")) return true;
+  if (name.includes("/.fseventsd/") || name.includes("/.Spotlight-V100/") || name.includes("/.Trashes/")) return true;
+  return false;
+}
+
+/* ---------- main conversion ---------- */
+async function convert(file, opts, onProgress) {
+  const buf = await file.arrayBuffer();
+  const entries = parseZip(buf);
+  const bytes = new Uint8Array(buf);
+
+  const report = { kept: 0, removed: 0, renamed: 0, encrypted: 0, rows: [] };
+  const outFiles = [];
+  let done = 0;
+
+  for (const e of entries) {
+    const dec = decodeName(e.nameBytes, (e.flags & 0x800) !== 0);
+    let name = dec.name;
+
+    let nfcFixed = false;
+    if (opts.utf8) {
+      const nfc = name.normalize("NFC");
+      if (nfc !== name) { name = nfc; nfcFixed = true; }
+    }
+
+    if (opts.strip && isMacJunk(name)) {
+      report.removed++; done++; onProgress(done / entries.length, name);
+      continue;
+    }
+    if (e.encrypted) report.encrypted++;
+
+    const isDir = name.endsWith("/");
+    let data = new Uint8Array(0);
+    if (!isDir) {
+      const raw = bytes.subarray(e.dataStart, e.dataStart + e.compSize);
+      if (e.method === 0) data = raw.slice();
+      else if (e.method === 8) {
+        try { data = e.encrypted ? raw.slice() : await inflateRaw(raw); }
+        catch (err) { throw new Error("'" + name + "' 압축 해제 실패: " + err.message); }
+      } else {
+        throw new Error("'" + name + "'는 지원하지 않는 압축 방식(method " + e.method + ")입니다.");
+      }
+    }
+
+    let comp = data, method = 0, crc = 0;
+    if (!isDir) {
+      crc = crc32(data);
+      if (data.length > 0 && !e.encrypted) {
+        const c = await deflateRaw(data);
+        if (c.length < data.length) { comp = c; method = 8; }
+      }
+    }
+
+    outFiles.push({ name, data, comp, method, crc, mtime: e.mtime, mdate: e.mdate });
+    report.kept++;
+    if (opts.utf8 && (dec.enc === "CP949" || nfcFixed)) {
+      report.renamed++;
+      const tag = dec.enc === "CP949"
+        ? (nfcFixed ? "CP949 + 자모결합" : "CP949 복구")
+        : "자모 결합 (NFD→NFC)";
+      report.rows.push({ enc: tag, name });
+    }
+    done++; onProgress(done / entries.length, name);
+  }
+
+  const zip = buildZip(outFiles);
+  return { zip, report };
+}
+
+/* ---------- UI ---------- */
+const $ = id => document.getElementById(id);
+const drop = $("drop"), fileInput = $("file");
+const statusEl = $("status"), listEl = $("list"), summaryEl = $("summary"), actionsEl = $("actions");
+const barWrap = $("barWrap"), bar = $("bar");
+
+drop.addEventListener("click", () => fileInput.click());
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("hover"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("hover"); }));
+drop.addEventListener("drop", e => { if (e.dataTransfer.files.length) handleFiles(e.dataTransfer.files); });
+fileInput.addEventListener("change", e => { if (e.target.files.length) handleFiles(e.target.files); });
+
+function reset() {
+  listEl.className = "list hidden"; listEl.innerHTML = "";
+  summaryEl.className = "summary hidden"; summaryEl.innerHTML = "";
+  actionsEl.innerHTML = ""; statusEl.innerHTML = ""; statusEl.className = "";
+  const w = document.getElementById("encWarn"); if (w) w.remove();
+}
+
+function checkSupport() {
+  if (typeof CompressionStream === "undefined" || typeof DecompressionStream === "undefined") {
+    statusEl.className = "err";
+    statusEl.textContent = "이 브라우저는 Compression Streams API를 지원하지 않습니다. Chrome, Edge, Firefox 또는 Safari 16.4 이상을 사용해 주세요.";
+    return false;
+  }
+  return true;
+}
+
+async function handleFiles(fileList) {
+  reset();
+  if (!checkSupport()) return;
+  const opts = { strip: $("optStrip").checked, utf8: $("optUtf8").checked };
+  const files = [...fileList].filter(f => /\.zip$/i.test(f.name));
+  if (!files.length) { statusEl.className = "err"; statusEl.textContent = "ZIP 파일을 선택해 주세요."; return; }
+
+  barWrap.className = "bar";
+  for (const file of files) {
+    statusEl.textContent = "처리 중: " + file.name;
+    try {
+      const { zip, report } = await convert(file, opts, p => { bar.style.width = Math.round(p * 100) + "%"; });
+      bar.style.width = "100%";
+      showResult(file, zip, report);
+    } catch (err) {
+      statusEl.className = "err";
+      statusEl.textContent = "오류 (" + file.name + "): " + err.message;
+      barWrap.className = "bar hidden";
+    }
+  }
+}
+
+function showResult(file, zip, report) {
+  barWrap.className = "bar hidden";
+  statusEl.className = "";
+  statusEl.innerHTML = "<b>완료.</b> " + escapeHtml(file.name) + " 변환됨.";
+
+  summaryEl.className = "summary";
+  summaryEl.innerHTML =
+    '<div class="stat"><div class="n">' + report.kept + '</div><div class="l">포함된 항목</div></div>' +
+    '<div class="stat"><div class="n">' + report.removed + '</div><div class="l">제거된 잡파일</div></div>' +
+    '<div class="stat"><div class="n">' + report.renamed + '</div><div class="l">파일명 복구</div></div>';
+
+  if (report.rows.length) {
+    listEl.className = "list";
+    listEl.innerHTML = '<div class="head">정상화된 파일명</div>' +
+      report.rows.map(r => '<div class="row"><span class="new">' + escapeHtml(r.name) + '</span><span class="tag">' + escapeHtml(r.enc) + '</span></div>').join("");
+  }
+  if (report.encrypted) {
+    const w = document.createElement("div");
+    w.id = "encWarn"; w.className = "err"; w.style.marginTop = "12px"; w.style.fontSize = "13px";
+    w.textContent = "주의: 암호로 보호된 항목 " + report.encrypted + "개가 있어 그대로 복사되었습니다(복호화 불가).";
+    summaryEl.after(w);
+  }
+
+  const outName = file.name.replace(/\.zip$/i, "") + "_win.zip";
+  const blob = new Blob([zip], { type: "application/zip" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.className = "btn"; a.href = url; a.download = outName;
+  a.textContent = outName + " 다운로드";
+  const a2 = document.createElement("button");
+  a2.className = "link"; a2.textContent = "다른 파일 변환";
+  a2.onclick = () => { reset(); fileInput.value = ""; };
+  actionsEl.innerHTML = "";
+  actionsEl.appendChild(a); actionsEl.appendChild(a2);
+}
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+}
+
+checkSupport();
+</script>
+</body>
+</html>
