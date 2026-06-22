@@ -1,9 +1,96 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
+<meta name="google-site-verification" content="PmtUQcQ8Xc7v6r4Gn-4ywcIhqNE3ZMwwuM0mV0VQU5M" />
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>맥 ZIP 윈도우 변환기</title>
+
+<!-- ===== 기본 SEO ===== -->
+<title>맥 ZIP 윈도우 변환기 — 맥 압축 파일 윈도우에서 열기 (한글 깨짐 복구)</title>
+<meta name="description" content="맥에서 압축한 ZIP이 윈도우에서 안 열리거나 한글 파일명이 깨질 때, __MACOSX·.DS_Store 잡파일을 제거하고 한글 이름을 복구해 표준 ZIP으로 다시 포장합니다. 설치 없이 브라우저에서 무료로, 파일은 서버로 전송되지 않습니다.">
+<meta name="keywords" content="맥 ZIP 윈도우, 맥 압축 윈도우, ZIP 한글 깨짐, __MACOSX 제거, DS_Store 제거, 맥 압축파일 변환, 한글 파일명 복구, mac zip windows">
+<meta name="author" content="맥 ZIP 윈도우 변환기">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#2f5fa6">
+<!-- 배포 도메인. 다른 주소로 옮기면 아래 URL 4곳(canonical, og:url, twitter, JSON-LD)만 교체하세요. -->
+<link rel="canonical" href="https://mac-zip-to-win.pages.dev/">
+
+<!-- ===== Open Graph (카카오톡·페이스북·네이버 공유) ===== -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="맥 ZIP 윈도우 변환기">
+<meta property="og:title" content="맥 ZIP 윈도우 변환기 — 맥 압축 파일 윈도우에서 열기">
+<meta property="og:description" content="맥 ZIP의 잡파일을 제거하고 깨진 한글 파일명을 복구해 윈도우에서 바로 풀리는 표준 ZIP으로 변환합니다. 설치 없이 브라우저에서 무료.">
+<meta property="og:url" content="https://mac-zip-to-win.pages.dev/">
+<meta property="og:locale" content="ko_KR">
+
+<!-- ===== Twitter Card ===== -->
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="맥 ZIP 윈도우 변환기 — 맥 압축 파일 윈도우에서 열기">
+<meta name="twitter:description" content="맥 ZIP의 잡파일 제거 + 한글 파일명 복구로 윈도우에서 바로 풀리는 ZIP을 만듭니다. 설치 없이 무료.">
+
+<!-- ===== 검색엔진 사이트 소유확인 (발급 후 content 값 채우세요) ===== -->
+<!-- <meta name="google-site-verification" content="구글-서치콘솔-인증코드"> -->
+<!-- <meta name="naver-site-verification" content="네이버-서치어드바이저-인증코드"> -->
+
+<!-- ===== 구조화 데이터: 웹앱 ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "맥 ZIP 윈도우 변환기",
+  "url": "https://mac-zip-to-win.pages.dev/",
+  "description": "맥에서 압축한 ZIP의 __MACOSX·.DS_Store 잡파일을 제거하고 깨진 한글 파일명을 복구해, 윈도우에서 정상적으로 풀리는 표준 ZIP으로 다시 포장하는 무료 브라우저 도구.",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Web (Chrome, Edge, Firefox, Safari 16.4+)",
+  "inLanguage": "ko",
+  "browserRequirements": "Compression Streams API 지원 브라우저 (Chrome, Edge, Firefox, Safari 16.4 이상)",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "KRW"
+  },
+  "featureList": [
+    "맥 전용 잡파일(__MACOSX, .DS_Store, ._*) 제거",
+    "깨진 한글 파일명 복구 (UTF-8 / CP949 판별)",
+    "자모 분리(NFD) 한글을 결합형(NFC)으로 정상화",
+    "서버 전송 없이 브라우저 내에서만 처리"
+  ]
+}
+</script>
+
+<!-- ===== 구조화 데이터: 자주 묻는 질문 ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "맥에서 압축한 ZIP이 윈도우에서 왜 안 열리나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "맥 ZIP에는 __MACOSX, .DS_Store 같은 맥 전용 잡파일과 비표준 구조가 섞여 있어 윈도우 기본 압축 해제기에서 오류가 나기 쉽습니다. 이 도구는 그런 요소를 정리하고 표준 ZIP으로 다시 포장해 더블클릭만으로 풀리게 만듭니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "윈도우에서 한글 파일명이 깨지는데 복구되나요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "네. 맥 ZIP은 파일명 인코딩 정보를 누락하는 경우가 많아 한글이 깨져 보입니다. UTF-8과 CP949를 판별해 원래 이름으로 되돌리고, 자모로 분리된 한글(NFD)을 결합형(NFC)으로 합쳐 정상 표기로 복원합니다."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "파일이 서버로 전송되나요? 안전한가요?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "모든 처리는 브라우저 안에서만 이루어집니다. 파일은 어떤 서버로도 전송되지 않으며 인터넷 연결도 필요 없습니다."
+      }
+    }
+  ]
+}
+</script>
 <style>
   :root{
     --bg:#f4f4f1; --card:#ffffff; --soft:#f7f7f4; --line:#e3e3dd; --line2:#eeeee9;
@@ -88,7 +175,7 @@
     flex:0 0 auto; width:24px; height:24px; border-radius:6px; background:var(--accent-soft); color:var(--accent);
     font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center;
   }
-  .feat-item .t{font-size:14px; font-weight:600; margin-bottom:2px}
+  .feat-item .t{font-size:14px; font-weight:600; margin:0 0 2px}
   .feat-item .d{font-size:13px; color:var(--muted)}
 
   .note{font-size:12.5px; color:var(--muted); line-height:1.85; margin:0}
@@ -97,7 +184,7 @@
 </style>
 </head>
 <body>
-<div class="wrap">
+<main class="wrap">
   <header>
     <h1>맥 ZIP 윈도우 변환기</h1>
     <p class="lead">맥에서 압축한 ZIP이 <b>윈도우에서 열리지 않거나 오류가 날 때</b>, 그 원인이 되는 맥 전용 잡파일을 정리하고 표준 ZIP으로 다시 포장해 정상적으로 풀리게 만듭니다. 한글 파일명 깨짐도 함께 바로잡습니다.</p>
@@ -127,40 +214,40 @@
     <div class="actions" id="actions"></div>
   </div>
 
-  <div class="card">
-    <p class="sec-title">이런 문제를 해결합니다</p>
+  <section class="card" aria-labelledby="sec-problems">
+    <h2 class="sec-title" id="sec-problems">이런 문제를 해결합니다</h2>
     <div class="feat">
       <div class="feat-item">
         <span class="num">1</span>
         <div>
-          <div class="t">압축이 아예 안 풀릴 때</div>
+          <h3 class="t">압축이 아예 안 풀릴 때</h3>
           <div class="d">맥 ZIP에는 <code>__MACOSX</code>, <code>.DS_Store</code> 같은 맥 전용 잡파일과 비표준 구조가 섞여 있어, 윈도우 기본 압축 해제기에서 오류가 나거나 풀리지 않는 경우가 많습니다. 이런 요소를 모두 정리하고 깨끗한 표준 ZIP으로 다시 포장해, 윈도우에서 더블클릭만으로 정상적으로 풀립니다.</div>
         </div>
       </div>
       <div class="feat-item">
         <span class="num">2</span>
         <div>
-          <div class="t">한글 파일명이 깨질 때</div>
+          <h3 class="t">한글 파일명이 깨질 때</h3>
           <div class="d">맥 ZIP은 파일명 인코딩 정보를 빠뜨리는 경우가 많아, 윈도우에서 <code>�쒓� 깨吏</code>처럼 보입니다. UTF-8·CP949를 판별해 원래 이름으로 되돌립니다.</div>
         </div>
       </div>
       <div class="feat-item">
         <span class="num">3</span>
         <div>
-          <div class="t">한글이 자모로 분리될 때</div>
+          <h3 class="t">한글이 자모로 분리될 때</h3>
           <div class="d">맥은 <code>포</code>를 <code>ㅍ ㅗ ㅈ</code>처럼 쪼개 저장합니다(NFD). 윈도우용 결합형(NFC)으로 합쳐 정상 표기로 복원합니다.</div>
         </div>
       </div>
     </div>
-  </div>
+  </section>
 
-  <div class="card">
-    <p class="sec-title">참고 사항</p>
+  <section class="card" aria-labelledby="sec-notes">
+    <h2 class="sec-title" id="sec-notes">참고 사항</h2>
     <p class="note"><b>작동 방식</b> — 브라우저에 내장된 압축 기능만 사용하므로 서버나 외부 라이브러리가 없습니다. 파일명을 복구하고 표준 ZIP으로 다시 압축할 뿐, 파일 내용은 그대로 보존됩니다.</p>
     <p class="note"><b>지원 브라우저</b> — Chrome, Edge, Firefox, Safari 16.4 이상.</p>
     <p class="note"><b>제한</b> — 암호로 보호된 ZIP이나 2GB가 넘는 초대형 파일은 지원하지 않을 수 있습니다.</p>
-  </div>
-</div>
+  </section>
+</main>
 
 <script>
 "use strict";
