@@ -1,0 +1,9 @@
+# 모든 검색엔진 크롤러 허용 (Google, Naver Yeti, Bing 등)
+User-agent: *
+Allow: /
+
+# 네이버 검색로봇
+User-agent: Yeti
+Allow: /
+
+Sitemap: https://mac-zip-to-win.pages.dev/sitemap.xml
