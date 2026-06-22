@@ -65,6 +65,40 @@
 }
 </script>
 
+<!-- ===== 구조화 데이터: 사용 방법 ===== -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "HowTo",
+  "name": "맥 ZIP 파일을 윈도우에서 열리는 ZIP으로 변환하는 방법",
+  "description": "맥에서 압축한 ZIP 파일의 잡파일(__MACOSX, .DS_Store)을 제거하고 한글 파일명을 복구해 윈도우에서 정상적으로 열리는 ZIP으로 변환합니다.",
+  "totalTime": "PT1M",
+  "tool": [
+    {"@type": "HowToTool", "name": "Chrome, Edge, Firefox, Safari 16.4 이상 브라우저"}
+  ],
+  "step": [
+    {
+      "@type": "HowToStep",
+      "position": "1",
+      "name": "ZIP 파일 선택",
+      "text": "변환할 맥 ZIP 파일을 페이지에 끌어다 놓거나 클릭해서 선택합니다. 여러 파일을 한 번에 선택할 수 있습니다."
+    },
+    {
+      "@type": "HowToStep",
+      "position": "2",
+      "name": "옵션 확인 후 자동 변환",
+      "text": "잡파일 제거와 한글 파일명 정상화 옵션이 기본으로 켜져 있습니다. 파일을 선택하면 브라우저가 자동으로 변환을 시작합니다."
+    },
+    {
+      "@type": "HowToStep",
+      "position": "3",
+      "name": "변환된 파일 다운로드",
+      "text": "변환이 완료되면 '_win.zip' 이름의 파일을 다운로드합니다. 윈도우 기본 압축 해제기로 더블클릭만 하면 바로 풀립니다."
+    }
+  ]
+}
+</script>
+
 <!-- ===== 구조화 데이터: 자주 묻는 질문 ===== -->
 <script type="application/ld+json">
 {
@@ -130,11 +164,11 @@
   }
   *{box-sizing:border-box}
   body{
-    margin:0; color:var(--txt); background:var(--bg); min-height:100vh; padding:52px 20px 72px;
+    margin:0; color:var(--txt); background:var(--bg); min-height:100vh; padding:0 20px 72px;
     font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
     -webkit-font-smoothing:antialiased; line-height:1.6;
   }
-  .wrap{max-width:640px; margin:0 auto}
+  .wrap{max-width:640px; margin:0 auto; padding-top:32px}
   code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:.85em; color:#444; background:#efefe9; padding:1px 5px; border-radius:4px}
 
   header{margin-bottom:22px}
@@ -213,10 +247,39 @@
   .note + .note{margin-top:9px}
   .note b{color:#3f3f39; font-weight:700}
 
+  /* TL;DR 요약 박스 */
+  .tldr-box{background:#f0f4ff; border:1px solid #ccd9f5; border-radius:10px; padding:14px 16px; margin-bottom:20px; font-size:13.5px}
+  .tldr-box .tldr-title{font-weight:700; color:var(--accent); margin-bottom:8px; font-size:13px; letter-spacing:-.01em}
+  .tldr-box ul{margin:0; padding-left:18px; color:#2a2a40; line-height:1.7}
+  .tldr-box li{margin-bottom:3px}
+
+  /* FAQ 섹션 */
+  .faq{display:flex; flex-direction:column; gap:16px}
+  .faq-item{border-bottom:1px solid var(--line2); padding-bottom:14px}
+  .faq-item:last-child{border-bottom:none; padding-bottom:0}
+  .faq-q{font-size:14px; font-weight:700; color:var(--txt); margin:0 0 5px}
+  .faq-a{font-size:13.5px; color:#4a4a44; line-height:1.75; margin:0}
+
   footer{text-align:center; margin-top:36px; padding-bottom:20px; font-size:12px; color:var(--muted)}
+  footer a{color:var(--muted); text-decoration:none}
+  footer a:hover{color:var(--txt)}
+  .footer-links{margin-top:6px}
+  nav{background:var(--card); border-bottom:1px solid var(--line); padding:0 20px; margin:0 -20px}
+  .nav-inner{max-width:640px; margin:0 auto; display:flex; align-items:center; height:46px; gap:20px}
+  .nav-brand{font-weight:700; font-size:14px; color:var(--txt); text-decoration:none; flex:1}
+  .nav-link{font-size:13px; color:var(--muted); text-decoration:none; white-space:nowrap}
+  .nav-link:hover,.nav-brand:hover{color:var(--accent)}
 </style>
 </head>
 <body>
+<nav>
+  <div class="nav-inner">
+    <a class="nav-brand" href="/">맥 ZIP 윈도우 변환기</a>
+    <a class="nav-link" href="/about.html">소개</a>
+    <a class="nav-link" href="/contact.html">문의</a>
+    <a class="nav-link" href="/privacy.html">개인정보처리방침</a>
+  </div>
+</nav>
 <main class="wrap">
   <header>
     <h1>맥 ZIP 윈도우 변환기</h1>
@@ -226,6 +289,15 @@
   <div class="callout">
     <span class="mk"></span>
     <span><b>모든 처리는 이 페이지 안(브라우저)에서만</b> 이루어집니다. 파일은 어떤 서버로도 전송되지 않으며, 인터넷 연결도 필요 없습니다.</span>
+  </div>
+
+  <div class="tldr-box">
+    <div class="tldr-title">3줄 요약</div>
+    <ul>
+      <li>맥 ZIP에 자동 포함되는 <code>__MACOSX</code>·<code>.DS_Store</code> 잡파일을 제거해 윈도우에서 정상적으로 열리게 합니다.</li>
+      <li>UTF-8·CP949 인코딩 판별과 NFD→NFC 변환으로 깨진 한글 파일명을 자동 복구합니다.</li>
+      <li>모든 처리는 브라우저 내에서만 이루어지며 파일이 외부 서버로 전송되지 않습니다.</li>
+    </ul>
   </div>
 
   <div class="card">
@@ -247,42 +319,99 @@
     <div class="actions" id="actions"></div>
   </div>
 
-  <section class="card" aria-labelledby="sec-problems">
-    <h2 class="sec-title" id="sec-problems">이런 문제를 해결합니다</h2>
+  <section class="card" aria-labelledby="sec-howto">
+    <h2 class="sec-title" id="sec-howto">맥 ZIP 파일을 윈도우에서 여는 방법 (3단계)</h2>
     <div class="feat">
       <div class="feat-item">
         <span class="num">1</span>
         <div>
-          <h3 class="t">압축이 아예 안 풀릴 때</h3>
-          <div class="d">맥 ZIP에는 <code>__MACOSX</code>, <code>.DS_Store</code> 같은 맥 전용 잡파일과 비표준 구조가 섞여 있어, 윈도우 기본 압축 해제기에서 오류가 나거나 풀리지 않는 경우가 많습니다. 이런 요소를 모두 정리하고 깨끗한 표준 ZIP으로 다시 포장해, 윈도우에서 더블클릭만으로 정상적으로 풀립니다.</div>
+          <h3 class="t">ZIP 파일 선택</h3>
+          <div class="d">위 도구에 맥 ZIP 파일을 끌어다 놓거나 클릭해서 선택합니다. 여러 파일을 한 번에 올리면 순서대로 변환됩니다.</div>
         </div>
       </div>
       <div class="feat-item">
         <span class="num">2</span>
         <div>
-          <h3 class="t">한글 파일명이 깨질 때</h3>
-          <div class="d">맥 ZIP은 파일명 인코딩 정보를 빠뜨리는 경우가 많아, 윈도우에서 <code>�쒓� 깨吏</code>처럼 보입니다. UTF-8·CP949를 판별해 원래 이름으로 되돌립니다.</div>
+          <h3 class="t">옵션 확인 후 자동 변환</h3>
+          <div class="d">잡파일 제거와 한글 파일명 정상화 옵션이 기본으로 켜져 있습니다. 파일을 선택하면 브라우저가 자동으로 변환을 시작합니다.</div>
         </div>
       </div>
       <div class="feat-item">
         <span class="num">3</span>
         <div>
-          <h3 class="t">한글이 자모로 분리될 때</h3>
-          <div class="d">맥은 <code>포</code>를 <code>ㅍ ㅗ ㅈ</code>처럼 쪼개 저장합니다(NFD). 윈도우용 결합형(NFC)으로 합쳐 정상 표기로 복원합니다.</div>
+          <h3 class="t">변환된 파일 다운로드</h3>
+          <div class="d">변환이 완료되면 <code>*_win.zip</code> 파일을 다운로드합니다. 윈도우 기본 압축 해제기로 더블클릭만 하면 바로 풀립니다.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="card" aria-labelledby="sec-problems">
+    <h2 class="sec-title" id="sec-problems">맥 ZIP이 윈도우에서 열리지 않는 이유와 해결 방법</h2>
+    <div class="feat">
+      <div class="feat-item">
+        <span class="num">1</span>
+        <div>
+          <h3 class="t">맥 ZIP 잡파일 때문에 압축이 안 풀릴 때</h3>
+          <div class="d">이 도구는 맥 ZIP에 포함된 <code>__MACOSX</code>·<code>.DS_Store</code>·<code>._*</code> 잡파일을 자동 제거하고 표준 ZIP으로 재포장해 윈도우에서 더블클릭만으로 풀리게 합니다. 맥 ZIP에는 macOS 전용 메타데이터 파일이 자동으로 포함되어 윈도우 기본 압축 해제기에서 오류가 납니다.</div>
+        </div>
+      </div>
+      <div class="feat-item">
+        <span class="num">2</span>
+        <div>
+          <h3 class="t">윈도우에서 한글 파일명이 깨질 때</h3>
+          <div class="d">UTF-8과 CP949를 자동으로 판별해 원래 한글 파일명으로 복원합니다. 맥 ZIP은 파일명 인코딩 정보를 빠뜨리는 경우가 많아 윈도우에서 <code>깨진 글자</code>처럼 보이는 문제가 발생합니다.</div>
+        </div>
+      </div>
+      <div class="feat-item">
+        <span class="num">3</span>
+        <div>
+          <h3 class="t">맥에서 한글이 자모(ㄱ, ㅏ)로 분리될 때</h3>
+          <div class="d">NFD로 분리된 한글 자모를 NFC 결합형으로 합쳐 정상 표기로 복원합니다. 맥은 '가'를 'ㄱ+ㅏ'처럼 자모 단위(NFD)로 분리해 저장하는 반면, 윈도우는 결합형(NFC)을 사용해 파일명이 낱자로 보이는 문제가 생깁니다.</div>
         </div>
       </div>
     </div>
   </section>
 
   <section class="card" aria-labelledby="sec-notes">
-    <h2 class="sec-title" id="sec-notes">참고 사항</h2>
+    <h2 class="sec-title" id="sec-notes">지원 브라우저 및 제한 사항</h2>
     <p class="note"><b>작동 방식</b> — 브라우저에 내장된 압축 기능만 사용하므로 서버나 외부 라이브러리가 없습니다. 파일명을 복구하고 표준 ZIP으로 다시 압축할 뿐, 파일 내용은 그대로 보존됩니다.</p>
     <p class="note"><b>지원 브라우저</b> — Chrome, Edge, Firefox, Safari 16.4 이상.</p>
     <p class="note"><b>제한</b> — 암호로 보호된 ZIP이나 2GB가 넘는 초대형 파일은 지원하지 않을 수 있습니다.</p>
   </section>
+  <section class="card" aria-labelledby="sec-faq">
+    <h2 class="sec-title" id="sec-faq">자주 묻는 질문</h2>
+    <div class="faq">
+      <div class="faq-item">
+        <h3 class="faq-q">맥에서 압축한 ZIP이 윈도우에서 왜 안 열리나요?</h3>
+        <p class="faq-a">맥 ZIP에는 <code>__MACOSX</code>, <code>.DS_Store</code> 같은 맥 전용 잡파일과 비표준 구조가 섞여 있어 윈도우 기본 압축 해제기에서 오류가 나기 쉽습니다. 이 도구는 그런 요소를 정리하고 표준 ZIP으로 다시 포장해 더블클릭만으로 풀리게 만듭니다.</p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-q">윈도우에서 한글 파일명이 깨지는데 복구되나요?</h3>
+        <p class="faq-a">네. 맥 ZIP은 파일명 인코딩 정보를 누락하는 경우가 많아 한글이 깨져 보입니다. UTF-8과 CP949를 판별해 원래 이름으로 되돌리고, 자모로 분리된 한글(NFD)을 결합형(NFC)으로 합쳐 정상 표기로 복원합니다.</p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-q">파일이 서버로 전송되나요? 안전한가요?</h3>
+        <p class="faq-a">모든 처리는 브라우저 안에서만 이루어집니다. 파일은 어떤 서버로도 전송되지 않으며 인터넷 연결도 필요 없습니다.</p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-q">한 번에 여러 개의 ZIP 파일을 변환할 수 있나요?</h3>
+        <p class="faq-a">네. 파일 선택 창에서 여러 파일을 한꺼번에 고르거나, ZIP 파일을 여러 개 끌어다 놓으면 순서대로 변환됩니다.</p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-q">변환 후 원본 파일이 수정되나요?</h3>
+        <p class="faq-a">아니요. 변환 결과는 새 파일(<code>*_win.zip</code>)로 다운로드되며, 페이지를 닫으면 모두 삭제됩니다. 원본 파일은 전혀 수정되지 않습니다.</p>
+      </div>
+      <div class="faq-item">
+        <h3 class="faq-q">변환 가능한 ZIP 파일 크기에 제한이 있나요?</h3>
+        <p class="faq-a">브라우저 메모리가 허용하는 범위 내에서 동작하며, 2 GB 이하의 파일에서 안정적으로 작동합니다. 암호로 보호된 ZIP은 파일명 복구와 잡파일 제거가 적용되지 않습니다.</p>
+      </div>
+    </div>
+  </section>
 </main>
 <footer>
   <p>© 2026 맥 ZIP 윈도우 변환기 · 브라우저에서 무료로 사용 · 파일은 서버로 전송되지 않습니다</p>
+  <p class="footer-links"><a href="/about.html">소개</a> · <a href="/contact.html">문의</a> · <a href="/privacy.html">개인정보처리방침</a></p>
 </footer>
 
 <script>
